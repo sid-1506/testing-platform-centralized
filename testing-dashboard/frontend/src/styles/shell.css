@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Shell — sidebar rail, sticky top bar, workspace
+   Desktop: two grid columns (sidebar | main). The sidebar collapses to an
+   icon rail by animating the grid track. Below 960px it becomes a drawer.
+   ========================================================================== */
+
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+  transition: grid-template-columns var(--dur-3) var(--ease-out);
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  align-self: start;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 14px 12px 12px;
+  overflow: hidden auto;
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+  transition: background-color var(--dur-2) ease;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding-left: 8px;
+  flex: none;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--ink);
+  transition: transform var(--dur-3) var(--ease-out);
+}
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.brand:hover .brand-mark {
+  transform: rotate(-8deg);
+}
+
+.brand-text {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+.brand-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.brand-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.nav {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  flex: none;
+}
+
+.nav-section {
+  display: grid;
+  gap: 2px;
+}
+
+.nav-heading {
+  height: 22px;
+  padding-left: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* The one moving part: a surface that slides behind the active item. */
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line), var(--shadow-1);
+  pointer-events: none;
+  transition: transform var(--dur-3) var(--ease-out), opacity var(--dur-2) ease, background-color var(--dur-2) ease;
+}
+.nav-indicator::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 3px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.nav-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 15px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  text-align: left;
+  white-space: nowrap;
+  transition: color var(--dur-1) ease, background-color var(--dur-1) ease;
+}
+.nav-item:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+.nav-item.is-active {
+  color: var(--ink);
+  font-weight: 500;
+  background: transparent;
+}
+
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.nav-item:hover .nav-icon {
+  transform: scale(1.08);
+}
+
+.nav-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-badge {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.nav-item.is-active .nav-badge {
+  color: var(--ink);
+}
+
+.nav-label,
+.nav-badge,
+.nav-heading,
+.brand-text,
+.sidebar-target {
+  transition: opacity var(--dur-2) ease;
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  flex: none;
+}
+
+.sidebar-target {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  min-width: 0;
+}
+.sidebar-target-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.sidebar-target-value {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ink-4);
+}
+.live-dot.is-live {
+  background: var(--accent);
+  color: var(--accent);
+  animation: pulse 1.6s ease-out infinite;
+}
+
+.scrim {
+  display: none;
+}
+
+/* Icon rail (desktop only) */
+@media (min-width: 961px) {
+  .app.is-collapsed {
+    grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+  }
+  .app.is-collapsed .nav-label,
+  .app.is-collapsed .nav-badge,
+  .app.is-collapsed .nav-heading,
+  .app.is-collapsed .brand-text,
+  .app.is-collapsed .sidebar-target {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Top bar
+   -------------------------------------------------------------------------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--topbar-h);
+  padding: 0 var(--pad-page);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  -webkit-backdrop-filter: saturate(1.5) blur(16px);
+  backdrop-filter: saturate(1.5) blur(16px);
+  transition: background-color var(--dur-2) ease;
+}
+
+.topbar-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 0;
+  max-width: 560px;
+  min-width: 0;
+}
+.topbar-context .select-repo {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.topbar-context .select-mode {
+  flex: 0 1 230px;
+  min-width: 0;
+}
+
+/* Never shrinks: the selectors on the left give way first, so the primary action is always fully visible. */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
+}
+.topbar-actions .header-search {
+  width: 220px;
+}
+.topbar-actions .btn {
+  flex: none;
+}
+
+.btn-label-short {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Workspace
+   -------------------------------------------------------------------------- */
+
+.workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 36px) var(--pad-page) 72px;
+}
+
+.view,
+.workspace-alerts {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.workspace-alerts {
+  display: grid;
+  gap: 10px;
+}
+.workspace-alerts:not(:empty) {
+  margin-bottom: var(--gap);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive shell
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .topbar-actions .header-search {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(300px, 86vw);
+    background: var(--surface);
+    box-shadow: var(--shadow-3);
+    transform: translateX(-104%);
+    visibility: hidden;
+    transition: transform var(--dur-3) var(--ease-out), visibility 0s linear var(--dur-3);
+  }
+  .app.is-nav-open .sidebar {
+    transform: none;
+    visibility: visible;
+    transition: transform var(--dur-3) var(--ease-out), visibility 0s;
+  }
+  .nav-indicator {
+    background: var(--surface-3);
+    box-shadow: none;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    padding: 0;
+    border: 0;
+    background: rgba(8, 8, 6, 0.42);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-2) ease;
+  }
+  .app.is-nav-open .scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    gap: 8px;
+  }
+  .topbar-context .select-mode {
+    display: none;
+  }
+  .topbar-context .select-pill-label {
+    display: none;
+  }
+  .btn-label-long {
+    display: none;
+  }
+  .btn-label-short {
+    display: inline;
+  }
+}

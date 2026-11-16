@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Independent Auth Application</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .card { background: #ffffff; width: 100%; max-width: 400px; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .badge { display: inline-block; background: #e0e7ff; color: #4338ca; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 999px; margin-bottom: 12px; }
+    h1 { font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+    p.subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 6px; outline: none; }
+    input:focus { border-color: #4f46e5; ring: 2px solid #e0e7ff; }
+    button { width: 100%; padding: 11px; background: #4f46e5; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    button:hover { background: #4338ca; }
+    .footer { margin-top: 20px; text-align: center; font-size: 13px; color: #6b7280; }
+    .footer a { color: #4f46e5; text-decoration: none; font-weight: 500; }
+    .alert { display: none; padding: 12px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-success { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">Auth App (:3001)</span>
+    <h1>Sign In</h1>
+    <p class="subtitle">Enter your credentials to receive an HttpOnly JWT.</p>
+
+    <div id="alertBox" class="alert"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" required placeholder="user@example.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" id="submitBtn">Log In</button>
+    </form>
+
+    <div class="footer">
+      Don't have an account? <a id="signupLink" href="/signup">Sign up here</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const signupLink = document.getElementById('signupLink');
+    const params = new URLSearchParams(window.location.search);
+    const redirectUri = params.get('redirect_uri') || '';
+
+    if (redirectUri) {
+      signupLink.href = '/signup?redirect_uri=' + encodeURIComponent(redirectUri);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Logging in...';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, redirect_uri: redirectUri })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          const targetUrl = data.redirectUrl || 'http://localhost:3000';
+          alertBox.className = 'alert alert-success';
+          alertBox.innerHTML = '<strong>Login successful!</strong> Redirecting you back to the application...';
+          alertBox.style.display = 'block';
+          window.location.href = targetUrl;
+        } else {
+          alertBox.className = 'alert alert-error';
+          alertBox.innerText = data.error || 'Failed to login';
+          alertBox.style.display = 'block';
+        }
+      } catch (err) {
+        alertBox.className = 'alert alert-error';
+        alertBox.innerText = 'Network error. Please try again.';
+        alertBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Log In';
+      }
+    });
+  </script>
+</body>
+</html>

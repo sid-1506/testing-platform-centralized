@@ -1,0 +1,478 @@
+/* ==========================================================================
+   Charts — stacked bars, sparkline, split bar, hero figure
+   Marks: bars ≤ 24px with a 4px rounded data end and a square baseline,
+   2px surface gap between stacked segments, 2px lines, ringed end dot.
+   Text always wears ink tokens; only the marks carry colour.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero figure + headline stats
+   -------------------------------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 20px 36px;
+}
+.hero-figure {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.hero-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.hero-value {
+  font-size: clamp(52px, 5vw + 20px, 76px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+.hero-unit {
+  margin-left: 2px;
+  color: var(--ink-3);
+  font-size: 0.42em;
+  letter-spacing: -0.02em;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 0;
+  min-width: 0;
+}
+.stat {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 2px 14px;
+  border-left: 1px solid var(--line);
+}
+.stat-label {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-value {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 560px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Split bar — one whole divided into passed / failed / skipped
+   -------------------------------------------------------------------------- */
+
+.split {
+  display: grid;
+  gap: 10px;
+}
+.split-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--chart-track);
+}
+.split-seg {
+  min-width: 3px;
+  transform-origin: left center;
+  animation: grow-x 900ms var(--ease-out) backwards;
+  animation-delay: 160ms;
+}
+.split-pass {
+  background: var(--chart-pass);
+}
+.split-fail {
+  background: var(--chart-fail);
+}
+.split-skip {
+  background: var(--ink-4);
+}
+.split-legend,
+.bars-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+.split-legend span,
+.bars-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.split-legend strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 2px;
+}
+.swatch-pass {
+  background: var(--chart-pass);
+}
+.swatch-fail {
+  background: var(--chart-fail);
+}
+.swatch-skip {
+  background: var(--ink-4);
+}
+
+/* --------------------------------------------------------------------------
+   Stacked bar chart
+   -------------------------------------------------------------------------- */
+
+.chart-block {
+  display: grid;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.chart-title {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.chart-head .select-pill {
+  height: 30px;
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 10px;
+}
+
+.bars-y {
+  position: relative;
+  width: calc(var(--digits, 2) * 1ch);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.bars-y span {
+  position: absolute;
+  right: 0;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.bars-plot {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  height: 184px;
+  border-bottom: 1px solid var(--line-strong);
+}
+.bars-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  pointer-events: none;
+}
+
+.bar-col {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  outline: none;
+}
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: min(24px, 62%);
+  min-height: 3px;
+  transform-origin: center bottom;
+  animation: grow-y 800ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms + 120ms);
+  transition: opacity var(--dur-2) ease;
+}
+.bar-seg {
+  min-height: 2px;
+}
+.bar-seg:first-child {
+  border-radius: 4px 4px 0 0;
+}
+.bar-seg-pass {
+  background: var(--chart-pass);
+}
+.bar-seg-fail {
+  background: var(--chart-fail);
+}
+.bar-empty {
+  width: min(24px, 62%);
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--chart-track);
+}
+
+/* Hovering one day quiets the others */
+.bars-plot:hover .bar-col:not(:hover) .bar,
+.bars-plot:focus-within .bar-col:not(:focus-visible) .bar {
+  opacity: 0.32;
+}
+.bar-col:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  border-radius: 6px;
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.bar-tip {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: min(calc(var(--h, 0%) + 10px), calc(100% - 46px));
+  display: grid;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity var(--dur-1) ease, transform var(--dur-2) var(--ease-out);
+}
+.bar-tip strong {
+  font-weight: 600;
+}
+.bar-tip span {
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+.bar-col:hover .bar-tip,
+.bar-col:focus-visible .bar-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+/* Edge columns anchor the tooltip to their own side so it stays inside the plot */
+.bar-col.is-start .bar-tip {
+  left: 0;
+  transform: translate(0, 4px);
+}
+.bar-col.is-start:hover .bar-tip,
+.bar-col.is-start:focus-visible .bar-tip {
+  transform: translate(0, 0);
+}
+.bar-col.is-end .bar-tip {
+  left: auto;
+  right: 0;
+  transform: translate(0, 4px);
+}
+.bar-col.is-end:hover .bar-tip,
+.bar-col.is-end:focus-visible .bar-tip {
+  transform: translate(0, 0);
+}
+
+.bars-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.bars-axis {
+  grid-column: 2;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+.bars-axis span {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.bars-legend {
+  grid-column: 2;
+}
+
+/* --------------------------------------------------------------------------
+   Sparkline
+   -------------------------------------------------------------------------- */
+
+.spark {
+  height: 34px;
+  padding: 0 5px;
+  color: var(--ink-3);
+}
+.spark-plot {
+  position: relative;
+  height: 100%;
+}
+.spark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: wipe 1100ms var(--ease-out) backwards;
+  animation-delay: 200ms;
+}
+.spark-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+  animation: fade 300ms ease backwards;
+  animation-delay: 1000ms;
+}
+.spark-empty {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  color: var(--ink-4);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------------------
+   Layer rows (Activity)
+   -------------------------------------------------------------------------- */
+
+.layer-list {
+  display: grid;
+  gap: 2px;
+  margin: -6px -10px;
+}
+.layer-row {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1.1fr) minmax(56px, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 10px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background-color var(--dur-1) ease;
+}
+.layer-row:hover {
+  background: var(--surface-2);
+}
+.layer-icon,
+.suite-icon,
+.project-icon,
+.safeguard-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  color: var(--ink-2);
+  transition: background-color var(--dur-2) ease, color var(--dur-2) ease;
+}
+.project-icon-lg {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+.layer-row.is-latest .layer-icon {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.layer-id {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.layer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.layer-delta {
+  min-width: 0;
+  overflow: hidden;
+}
+.layer-delta .delta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.layer-delta .delta svg {
+  display: inline;
+  vertical-align: -1px;
+  margin-right: 2px;
+}
+.layer-trend {
+  min-width: 0;
+}
+.layer-value {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  text-align: right;
+}
+.layer-value-total {
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@media (max-width: 520px) {
+  .layer-row {
+    grid-template-columns: 36px minmax(0, 1fr) auto auto;
+  }
+  .layer-trend {
+    display: none;
+  }
+}

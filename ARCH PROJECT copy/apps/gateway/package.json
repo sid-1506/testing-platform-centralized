@@ -1,0 +1,20 @@
+{
+  "name": "@arch/gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API Gateway with Routing, Load Balancing and Tracing",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "tsx": "^4.23.15"
+  }
+}

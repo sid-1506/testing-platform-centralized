@@ -1,0 +1,72 @@
+{
+  "apps": [
+    {
+      "id": "arch-project",
+      "name": "ARCH PROJECT (Multi-App Architecture)",
+      "description": "Multi-application TypeScript monorepo with Auth (:3001), E-Commerce Web (:3000), Notes (:3003), Hybrid Task Manager (:3004/:3005), API Gateway (:5001), and Product Replicas (:6001-:6003).",
+      "sourcePath": "../ARCH PROJECT copy",
+      "suitePath": "../testing-suites/arch-project",
+      "startup": {
+        "command": "node",
+        "args": ["scripts/runner.js"],
+        "ports": [3000, 3001, 3003, 3004, 3005, 5001, 6001, 6002, 6003],
+        "healthUrls": [
+          "http://localhost:3001/health",
+          "http://localhost:3000/api/health",
+          "http://localhost:3003/health",
+          "http://localhost:3004/api/health",
+          "http://localhost:3005/health",
+          "http://localhost:5001/health",
+          "http://localhost:6001/health",
+          "http://localhost:6002/health",
+          "http://localhost:6003/health"
+        ],
+        "startupTimeoutMs": 35000
+      },
+      "testEnv": {
+        "JWT_SECRET": "platform_ephemeral_test_jwt_secret_for_isolated_runs_only_32chars",
+        "ALLOWED_ORIGINS": "http://localhost:3000,http://localhost:3003,http://localhost:3004",
+        "AUTH_URL": "http://localhost:3001",
+        "WEB_URL": "http://localhost:3000",
+        "NOTES_URL": "http://localhost:3003",
+        "HYBRID_FE_URL": "http://localhost:3004",
+        "HYBRID_BE_URL": "http://localhost:3005",
+        "GATEWAY_URL": "http://localhost:5001"
+      },
+      "suites": [
+        {
+          "id": "unit-security",
+          "name": "Auth Security Helpers (Unit)",
+          "layer": "unit",
+          "framework": "vitest",
+          "targetFile": "unit/security.test.ts",
+          "requiresAppRunning": false
+        },
+        {
+          "id": "unit-loadbalancer",
+          "name": "Gateway Load Balancer (Unit)",
+          "layer": "unit",
+          "framework": "vitest",
+          "targetFile": "unit/loadbalancer.test.ts",
+          "requiresAppRunning": false
+        },
+        {
+          "id": "integration-api",
+          "name": "Multi-Service API & Isolation (Integration)",
+          "layer": "integration",
+          "framework": "vitest",
+          "targetFile": "integration/api-services.test.ts",
+          "requiresAppRunning": true
+        },
+        {
+          "id": "e2e-sso",
+          "name": "Browser SSO & Navigation (E2E)",
+          "layer": "e2e",
+          "framework": "playwright",
+          "targetFile": "e2e/sso-workflow.spec.ts",
+          "requiresAppRunning": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Tokens — the only place raw colours, radii, type sizes and timings live.
+   The theme is resolved to `data-theme` on <html> before first paint
+   (index.html), so dark values are declared exactly once.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Type */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --text-xs: 11px;
+  --text-sm: 12.5px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-display: clamp(30px, 2.2vw + 18px, 46px);
+
+  /* Surfaces */
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #faf9f6;
+  --surface-3: #f1efe9;
+  --line: rgba(22, 21, 15, 0.09);
+  --line-strong: rgba(22, 21, 15, 0.17);
+
+  /* Ink */
+  --ink: #16150f;
+  --ink-2: #55534a;
+  --ink-3: #77756b;
+  --ink-4: #b3b1a6;
+  --on-ink: #ffffff;
+
+  /* Accent (brand, focus, live state) */
+  --accent: #ff4d17;
+  --accent-hover: #ea3f0b;
+  --accent-ink: #c93806;
+  --accent-soft: rgba(255, 77, 23, 0.1);
+  --on-accent: #ffffff;
+
+  /* Status (state only — never decoration) */
+  --pass: #17794a;
+  --pass-soft: rgba(23, 121, 74, 0.1);
+  --fail: #c62a33;
+  --fail-soft: rgba(198, 42, 51, 0.09);
+  --warn: #8f5f00;
+  --warn-soft: rgba(196, 136, 0, 0.13);
+
+  /* Chart marks: passed is the quiet baseline, failed is the status colour */
+  --chart-pass: #26251f;
+  --chart-fail: #d5343c;
+  --chart-track: rgba(22, 21, 15, 0.07);
+
+  /* Terminal (dark in both themes) */
+  --term-bg: #121210;
+  --term-line: rgba(255, 255, 255, 0.08);
+  --term-ink: #e9e6de;
+  --term-muted: rgba(233, 230, 222, 0.52);
+  --term-pass: #6fd3a0;
+  --term-fail: #ff8a8a;
+  --term-platform: #f3b27a;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgba(22, 21, 15, 0.05);
+  --shadow-2: 0 1px 2px rgba(22, 21, 15, 0.04), 0 8px 24px -8px rgba(22, 21, 15, 0.12);
+  --shadow-3: 0 2px 6px rgba(22, 21, 15, 0.06), 0 28px 64px -16px rgba(22, 21, 15, 0.28);
+
+  /* Shape */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* Rhythm */
+  --gap: 20px;
+  --pad-card: 24px;
+  --pad-page: clamp(16px, 3vw, 40px);
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 64px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 140ms;
+  --dur-2: 260ms;
+  --dur-3: 560ms;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0d0d0b;
+  --surface: #151513;
+  --surface-2: #1a1a17;
+  --surface-3: #22221f;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  --ink: #f1efe8;
+  --ink-2: #b4b2a8;
+  --ink-3: #8b897f;
+  --ink-4: #5b5a53;
+  --on-ink: #12120f;
+
+  --accent: #ff5f2e;
+  --accent-hover: #ff7447;
+  --accent-ink: #ff8459;
+  --accent-soft: rgba(255, 95, 46, 0.14);
+  --on-accent: #160802;
+
+  --pass: #58c990;
+  --pass-soft: rgba(88, 201, 144, 0.13);
+  --fail: #f4777c;
+  --fail-soft: rgba(244, 119, 124, 0.13);
+  --warn: #e3ad42;
+  --warn-soft: rgba(227, 173, 66, 0.13);
+
+  --chart-pass: #e9e7e0;
+  --chart-fail: #f0575d;
+  --chart-track: rgba(255, 255, 255, 0.08);
+
+  --term-bg: #0a0a09;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -8px rgba(0, 0, 0, 0.6);
+  --shadow-3: 0 2px 6px rgba(0, 0, 0, 0.5), 0 32px 72px -16px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --gap: 14px;
+    --pad-card: 18px;
+    --topbar-h: 56px;
+  }
+}

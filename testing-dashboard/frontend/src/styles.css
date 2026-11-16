@@ -1,0 +1,21 @@
+/* ==========================================================================
+   Centralized Testing Platform — design system entry point
+
+   Visual language: warm paper background, flat white surfaces separated by
+   hairlines (no card-in-card nesting), one accent, one type family, and a
+   small set of motion tokens shared by every transition.
+
+   Layering rule that keeps things from overlapping: every layout container
+   is a grid or a wrapping flex row whose children carry `min-width: 0`, long
+   text truncates or wraps inside its own cell, and wide tables scroll inside
+   `.table-scroll` instead of pushing the page sideways.
+   ========================================================================== */
+
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/shell.css';
+@import './styles/controls.css';
+@import './styles/surfaces.css';
+@import './styles/charts.css';
+@import './styles/terminal.css';
+@import './styles/views.css';

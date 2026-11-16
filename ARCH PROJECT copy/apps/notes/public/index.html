@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App (:3003) — Centralized Auth</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f8fafc; color: #0f172a; padding: 24px 16px; }
+    .container { max-width: 820px; margin: 0 auto; }
+    .header { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px; }
+    h1 { font-size: 22px; font-weight: 700; }
+    .user-info { font-size: 13px; color: #475569; margin-top: 2px; }
+    .btn { padding: 9px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-secondary { background: #e2e8f0; color: #1e293b; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+    .card h2 { font-size: 17px; margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 5px; }
+    input, textarea { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .status { display: none; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 14px; }
+    .status.ok { display: block; background: #dcfce7; color: #166534; }
+    .status.err { display: block; background: #fee2e2; color: #991b1b; }
+    .note-item { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: #fff; }
+    .note-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .note-content { font-size: 14px; color: #334155; white-space: pre-wrap; margin-bottom: 10px; }
+    .note-meta { font-size: 12px; color: #64748b; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .note-actions { display: flex; gap: 8px; }
+    .empty { color: #64748b; font-size: 14px; text-align: center; padding: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <span class="badge">App 1: Node.js + Express Notes (:3003)</span>
+        <h1>My Personal Notes</h1>
+        <div id="userInfo" class="user-info">Verifying session...</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a href="http://localhost:3000" style="font-size:13px; color:#4f46e5; text-decoration:none; font-weight:500;">&larr; Next.js App (:3000)</a>
+        <button id="logoutBtn" class="btn btn-danger" type="button">Sign Out</button>
+      </div>
+    </div>
+
+    <div id="statusBox" class="status"></div>
+
+    <div class="card">
+      <h2 id="formTitle">Create a Note</h2>
+      <form id="noteForm">
+        <input type="hidden" id="editingId" value="" />
+        <div class="form-group">
+          <label for="titleInput">Title</label>
+          <input id="titleInput" type="text" required placeholder="Note title..." />
+        </div>
+        <div class="form-group">
+          <label for="contentInput">Content</label>
+          <textarea id="contentInput" rows="3" placeholder="Write your note..."></textarea>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="saveBtn" class="btn btn-primary" type="submit">Create Note</button>
+          <button id="cancelEditBtn" class="btn btn-secondary" type="button" style="display:none;">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Saved Notes (notes.db)</h2>
+      <div id="notesList" class="empty">Loading notes...</div>
+    </div>
+  </div>
+
+  <script>
+    const statusBox = document.getElementById('statusBox');
+    const userInfo = document.getElementById('userInfo');
+    const notesList = document.getElementById('notesList');
+    const noteForm = document.getElementById('noteForm');
+    const editingId = document.getElementById('editingId');
+    const titleInput = document.getElementById('titleInput');
+    const contentInput = document.getElementById('contentInput');
+    const formTitle = document.getElementById('formTitle');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    let authUrl = 'http://localhost:3001';
+
+    function showStatus(msg, isErr) {
+      statusBox.textContent = msg;
+      statusBox.className = 'status ' + (isErr ? 'err' : 'ok');
+    }
+
+    function redirectToAuth() {
+      window.location.href = authUrl + '/login?redirect_uri=' + encodeURIComponent('http://localhost:3003');
+    }
+
+    async function loadUser() {
+      const res = await fetch('/api/me');
+      if (res.status === 401) return redirectToAuth();
+      const data = await res.json();
+      if (data.authUrl) authUrl = data.authUrl;
+      userInfo.textContent = `Signed in as ${data.user.email} (User #${data.user.userId})`;
+    }
+
+    async function loadNotes() {
+      const res = await fetch('/api/notes');
+      if (res.status === 401) return redirectToAuth();
+      const data = await res.json();
+      renderNotes(data.notes || []);
+    }
+
+    function renderNotes(notes) {
+      if (!notes.length) {
+        notesList.className = 'empty';
+        notesList.textContent = 'No notes yet. Create your first note above.';
+        return;
+      }
+      notesList.className = '';
+      notesList.innerHTML = '';
+      for (const note of notes) {
+        const item = document.createElement('div');
+        item.className = 'note-item';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'note-title';
+        titleEl.textContent = note.title;
+
+        const contentEl = document.createElement('div');
+        contentEl.className = 'note-content';
+        contentEl.textContent = note.content || '(No content)';
+
+        const metaEl = document.createElement('div');
+        metaEl.className = 'note-meta';
+        const timeEl = document.createElement('span');
+        timeEl.textContent = `ID #${note.id} • Updated: ${note.updated_at}`;
+
+        const actionsEl = document.createElement('div');
+        actionsEl.className = 'note-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn btn-secondary';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => startEdit(note);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn-danger';
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deleteNote(note.id);
+
+        actionsEl.appendChild(editBtn);
+        actionsEl.appendChild(delBtn);
+        metaEl.appendChild(timeEl);
+        metaEl.appendChild(actionsEl);
+
+        item.appendChild(titleEl);
+        item.appendChild(contentEl);
+        item.appendChild(metaEl);
+        notesList.appendChild(item);
+      }
+    }
+
+    function startEdit(note) {
+      editingId.value = String(note.id);
+      titleInput.value = note.title;
+      contentInput.value = note.content;
+      formTitle.textContent = `Edit Note #${note.id}`;
+      saveBtn.textContent = 'Update Note';
+      cancelEditBtn.style.display = 'inline-block';
+      titleInput.focus();
+    }
+
+    function resetForm() {
+      editingId.value = '';
+      noteForm.reset();
+      formTitle.textContent = 'Create a Note';
+      saveBtn.textContent = 'Create Note';
+      cancelEditBtn.style.display = 'none';
+    }
+
+    cancelEditBtn.addEventListener('click', resetForm);
+
+    noteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = editingId.value;
+      const payload = { title: titleInput.value, content: contentInput.value };
+      const url = id ? `/api/notes/${id}` : '/api/notes';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.status === 401) return redirectToAuth();
+      const data = await res.json();
+      if (res.ok) {
+        showStatus(id ? 'Note updated!' : 'Note created!', false);
+        resetForm();
+        await loadNotes();
+      } else {
+        showStatus(data.error || 'Operation failed', true);
+      }
+    });
+
+    async function deleteNote(id) {
+      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+      if (res.status === 401) return redirectToAuth();
+      const data = await res.json();
+      if (res.ok) {
+        showStatus('Note deleted!', false);
+        if (editingId.value === String(id)) resetForm();
+        await loadNotes();
+      } else {
+        showStatus(data.error || 'Failed to delete note', true);
+      }
+    }
+
+    logoutBtn.addEventListener('click', async () => {
+      let target = authUrl + '/login?redirect_uri=' + encodeURIComponent('http://localhost:3003');
+      try {
+        const res = await fetch(authUrl + '/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ redirect_uri: 'http://localhost:3003' }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.redirectUrl) target = data.redirectUrl;
+        }
+      } catch {}
+      window.location.href = target;
+    });
+
+    (async () => {
+      await loadUser();
+      await loadNotes();
+    })();
+  </script>
+</body>
+</html>

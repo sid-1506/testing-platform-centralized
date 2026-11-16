@@ -1,0 +1,24 @@
+{
+  "name": "@arch/hybrid-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hybrid Task Manager Next.js Frontend (:3004)",
+  "scripts": {
+    "dev": "next dev -p 3004",
+    "build": "next build",
+    "start": "next start -p 3004",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1"
+  }
+}

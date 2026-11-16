@@ -1,0 +1,40 @@
+{
+  "name": "scalable-multi-app-architecture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scalable Multi-Application Architecture Using Next.js, Node.js & API Gateway with Centralized Logging",
+  "workspaces": [
+    "apps/auth",
+    "apps/web",
+    "apps/notes",
+    "apps/hybrid/frontend",
+    "apps/hybrid/backend",
+    "apps/gateway",
+    "apps/services/product-service"
+  ],
+  "scripts": {
+    "workspaces:list": "npm query .workspace",
+    "build": "npm run --workspaces --if-present build",
+    "typecheck": "npm run --workspaces --if-present typecheck",
+    "start:auth": "npm run dev -w @arch/auth",
+    "start:web": "npm run dev -w @arch/web",
+    "start:notes": "npm run dev -w @arch/notes",
+    "start:hybrid:frontend": "npm run dev -w @arch/hybrid-frontend",
+    "start:hybrid:backend": "npm run dev -w @arch/hybrid-backend",
+    "start:hybrid": "sh -c 'npm run dev -w @arch/hybrid-backend & npm run dev -w @arch/hybrid-frontend & wait'",
+    "start:gateway": "npm run dev -w @arch/gateway",
+    "start:product-1": "PORT=6001 INSTANCE_ID=product-1 npm run dev -w @arch/product-service",
+    "start:product-2": "PORT=6002 INSTANCE_ID=product-2 npm run dev -w @arch/product-service",
+    "start:product-3": "PORT=6003 INSTANCE_ID=product-3 npm run dev -w @arch/product-service",
+    "start:monitoring": "./scripts/start-monitoring.sh",
+    "stop:monitoring": "./scripts/stop-monitoring.sh",
+    "status:monitoring": "./scripts/status-monitoring.sh",
+    "start:all": "./scripts/start-all.sh",
+    "stop:all": "./scripts/stop-all.sh",
+    "test:all": "./scripts/test-all.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

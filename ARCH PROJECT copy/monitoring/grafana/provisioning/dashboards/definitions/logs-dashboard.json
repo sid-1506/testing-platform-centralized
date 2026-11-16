@@ -1,0 +1,374 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "style": "dark",
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "A. Overview & Health Summary (1h)",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Total Log Events",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job=\"arch-applications\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "Total Logs"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 2,
+      "title": "Application Requests",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job=\"arch-applications\", event=~\"APP_ACCESS|NOTES_LIST|NOTE_CREATED|NOTE_UPDATED|NOTE_DELETED|PRODUCTS_LISTED|CART_VIEWED|CART_ITEM_ADDED|CART_ITEM_UPDATED|CART_ITEM_REMOVED|CART_CHECKOUT|TASKS_LISTED|TASK_CREATED|TASK_UPDATED|TASK_COMPLETED|TASK_DELETED|INCOMING_REQUEST\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "App Requests"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "blue", "mode": "fixed" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 3,
+      "title": "Successful Logins",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"auth-service\", event=\"LOGIN_SUCCESS\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "Logins"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "green", "mode": "fixed" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 4,
+      "title": "Failed Logins",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"auth-service\", event=\"LOGIN_FAILED\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "Failed Logins"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "orange", "mode": "fixed" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 5,
+      "title": "HTTP 4xx Errors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job=\"arch-applications\", status_code=~\"4..\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "4xx Errors"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "yellow", "mode": "fixed" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 6,
+      "title": "HTTP 5xx Errors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job=\"arch-applications\", status_code=~\"5..\"}[1h])) or vector(0)",
+          "refId": "A",
+          "legendFormat": "5xx Errors"
+        }
+      ],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "red", "mode": "fixed" }, "unit": "short" } },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 7,
+      "title": "Service-Wise Activity (Logs / 1h)",
+      "type": "bargauge",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 5 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum by (service) (count_over_time({job=\"arch-applications\"}[1h]))",
+          "refId": "A",
+          "legendFormat": "{{service}}"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 8,
+      "title": "Round-Robin Replica Distribution (product-1 / product-2 / product-3)",
+      "type": "bargauge",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 5 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum by (instance_id) (count_over_time({service=\"product-service\", instance_id=~\"product-1|product-2|product-3\", event=\"REQUEST_RECEIVED\"}[1h]))",
+          "refId": "A",
+          "legendFormat": "{{instance_id}}"
+        }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
+      "id": 101,
+      "title": "B. Centralized Authentication Monitoring (:3001 & Cross-App Auth)",
+      "type": "row"
+    },
+    {
+      "id": 9,
+      "title": "Authentication Activity Over Time",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 12 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "sum by (event) (count_over_time({job=\"arch-applications\", event=~\"LOGIN_SUCCESS|LOGIN_FAILED|LOGOUT|AUTH_UNAUTHORIZED|CORS_REJECTED|SIGNUP_SUCCESS\"}[1m]))",
+          "refId": "A",
+          "legendFormat": "{{event}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Authentication & Security Logs",
+      "type": "logs",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 12 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{job=\"arch-applications\", event=~\"LOGIN_SUCCESS|LOGIN_FAILED|LOGOUT|AUTH_UNAUTHORIZED|CORS_REJECTED|SIGNUP_SUCCESS\"} |~ \"$request_id\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 102,
+      "title": "C. Three Applications Activity (Notes :3003, E-Commerce :3000, Hybrid :3004/:3005)",
+      "type": "row"
+    },
+    {
+      "id": 11,
+      "title": "Notes App Events (:3003)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 19 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{service=\"notes-app\", event=~\"APP_ACCESS|NOTES_LIST|NOTE_CREATED|NOTE_UPDATED|NOTE_DELETED|AUTH_UNAUTHORIZED|REQUEST_FAILED\"} |~ \"$request_id\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "id": 12,
+      "title": "E-Commerce App Events (:3000)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 19 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{service=\"web-app\", event=~\"PRODUCTS_LISTED|CART_VIEWED|CART_ITEM_ADDED|CART_ITEM_UPDATED|CART_ITEM_REMOVED|CART_CLEARED|CART_CHECKOUT|AUTH_UNAUTHORIZED|REQUEST_FAILED\"} |~ \"$request_id\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "id": 13,
+      "title": "Hybrid App Events (:3004 & :3005)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 19 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{service=~\"hybrid-frontend|hybrid-backend\", event=~\"APP_ACCESS|TASKS_LISTED|TASK_CREATED|TASK_UPDATED|TASK_COMPLETED|TASK_DELETED|AUTH_UNAUTHORIZED|REQUEST_FAILED\"} |~ \"$request_id\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "id": 103,
+      "title": "D. API Gateway (:5001), Product Replicas (:6001-6003) & Error Monitoring",
+      "type": "row"
+    },
+    {
+      "id": 14,
+      "title": "API Gateway Logs (:5001)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 27 },
+      "datasource": "Loki",
+      "targets": [
+        { "expr": "{service=\"api-gateway\"} |~ \"$request_id\"", "refId": "A" }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "id": 15,
+      "title": "Product Service Replicas (:6001-6003)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 27 },
+      "datasource": "Loki",
+      "targets": [
+        { "expr": "{service=\"product-service\"} |~ \"$request_id\"", "refId": "A" }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "id": 16,
+      "title": "Errors & Failures (4xx / 5xx / Auth / Gateway)",
+      "type": "logs",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 27 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{job=\"arch-applications\"} |~ \"REQUEST_FAILED|GATEWAY_ERROR|LOGIN_FAILED|AUTH_UNAUTHORIZED|CORS_REJECTED|\\\"status_code\\\":[45][0-9]{2}\" |~ \"$request_id\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
+      "id": 104,
+      "title": "E. Request ID Correlation & Unified Live Log Stream",
+      "type": "row"
+    },
+    {
+      "id": 17,
+      "title": "Unified Correlated Log Stream ($service, $event, $request_id, $search)",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 35 },
+      "datasource": "Loki",
+      "targets": [
+        {
+          "expr": "{job=\"arch-applications\", service=~\"$service\", event=~\"$event\"} |~ \"$request_id\" |~ \"$search\"",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "tags": ["logging", "loki", "alloy", "architecture", "sso"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All Services", "value": ".*" },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Service",
+        "multi": false,
+        "name": "service",
+        "options": [
+          { "selected": true, "text": "All Services", "value": ".*" },
+          { "selected": false, "text": "auth-service", "value": "auth-service" },
+          { "selected": false, "text": "notes-app", "value": "notes-app" },
+          { "selected": false, "text": "web-app", "value": "web-app" },
+          { "selected": false, "text": "hybrid-frontend", "value": "hybrid-frontend" },
+          { "selected": false, "text": "hybrid-backend", "value": "hybrid-backend" },
+          { "selected": false, "text": "api-gateway", "value": "api-gateway" },
+          { "selected": false, "text": "product-service", "value": "product-service" }
+        ],
+        "query": ".*,auth-service,notes-app,web-app,hybrid-frontend,hybrid-backend,api-gateway,product-service",
+        "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "All Events", "value": ".*" },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Event",
+        "multi": false,
+        "name": "event",
+        "options": [
+          { "selected": true, "text": "All Events", "value": ".*" },
+          { "selected": false, "text": "LOGIN_SUCCESS", "value": "LOGIN_SUCCESS" },
+          { "selected": false, "text": "LOGIN_FAILED", "value": "LOGIN_FAILED" },
+          { "selected": false, "text": "LOGOUT", "value": "LOGOUT" },
+          { "selected": false, "text": "AUTH_UNAUTHORIZED", "value": "AUTH_UNAUTHORIZED" },
+          { "selected": false, "text": "APP_ACCESS", "value": "APP_ACCESS" },
+          { "selected": false, "text": "NOTE_CREATED", "value": "NOTE_CREATED" },
+          { "selected": false, "text": "NOTE_UPDATED", "value": "NOTE_UPDATED" },
+          { "selected": false, "text": "NOTE_DELETED", "value": "NOTE_DELETED" },
+          { "selected": false, "text": "PRODUCTS_LISTED", "value": "PRODUCTS_LISTED" },
+          { "selected": false, "text": "CART_ITEM_ADDED", "value": "CART_ITEM_ADDED" },
+          { "selected": false, "text": "CART_CHECKOUT", "value": "CART_CHECKOUT" },
+          { "selected": false, "text": "TASK_CREATED", "value": "TASK_CREATED" },
+          { "selected": false, "text": "TASK_COMPLETED", "value": "TASK_COMPLETED" },
+          { "selected": false, "text": "TASK_DELETED", "value": "TASK_DELETED" },
+          { "selected": false, "text": "REQUEST_FAILED", "value": "REQUEST_FAILED" }
+        ],
+        "query": ".*,LOGIN_SUCCESS,LOGIN_FAILED,LOGOUT,AUTH_UNAUTHORIZED,APP_ACCESS,NOTE_CREATED,NOTE_UPDATED,NOTE_DELETED,PRODUCTS_LISTED,CART_ITEM_ADDED,CART_CHECKOUT,TASK_CREATED,TASK_COMPLETED,TASK_DELETED,REQUEST_FAILED",
+        "type": "custom"
+      },
+      {
+        "current": { "value": "" },
+        "hide": 0,
+        "label": "Request ID Filter",
+        "name": "request_id",
+        "options": [{ "selected": true, "value": "" }],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": { "value": "" },
+        "hide": 0,
+        "label": "Search Text",
+        "name": "search",
+        "options": [{ "selected": true, "value": "" }],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["1s", "2s", "5s", "10s", "30s"] },
+  "timezone": "Asia/Kolkata",
+  "title": "Application Centralized Logging Dashboard (Loki + Alloy)",
+  "uid": "arch-centralized-logs",
+  "version": 2
+}
